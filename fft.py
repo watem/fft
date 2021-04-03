@@ -1,7 +1,7 @@
 import sys, re
 import numpy as np
 # Constant values
-naive_size = 10
+naive_size = 16
 
 # default values
 mode = 1
@@ -35,7 +35,23 @@ else:
     exit()
 exit()
 
-# TODO: naive
+
+# padding length
+def next_pow2(init_len):
+    count = 0;
+
+    # find if power of 2
+    if (n and not(n & (n - 1))):
+        return n
+
+    # find number of bits set
+    while( n != 0):
+        n >>= 1
+        count += 1
+
+    return 1 << count;
+
+# naive
 def naive_ft(vector):
     N = len(vector)
     ft_vector = np.zeros(N, dtype=np.complex64)
