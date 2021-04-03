@@ -1,4 +1,7 @@
 import sys, re
+import numpy as np
+# Constant values
+naive_size = 10
 
 # default values
 mode = 1
@@ -33,7 +36,14 @@ else:
 exit()
 
 # TODO: naive
-
+def naive_ft(vector):
+    N = len(vector)
+    ft_vector = np.zeros(N, dtype=np.complex64)
+    for k in range(N):
+        exponential = np.exp(-2j*np.pi*k/N*(np.arange(N, dtype=np.complex64)))
+        for n in range(N):
+            ft_vector[k]+=vector[n]*exponential[n]
+    return ft_vector
 
 # TODO: fast
 
