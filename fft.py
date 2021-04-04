@@ -1,5 +1,7 @@
 import sys, re
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 # Constant values
 # naive_size = 16 # can be acheived using (1<<naive_size_pow)
 naive_size_pow = 4
@@ -153,6 +155,29 @@ def ifft_2d(a):
 
     return ft_rows
 
+# TODO: 2d log scale plot
+def plot(fft_image):
+    plt.imshow(np.abs(fft_image), norm=LogNorm(vmin=5))
+    plt.colorbar()
+    plt.figure()
+    plot_spectrum(fft_image)
+    plt.title('Fourier transform')
+
+# TODO: save dft to .txt or .csv
+
+# TODO: fft of image
+def fft_image(im):
+    fft_2d(im)
+
+# TODO: denoise image
+def denoise(im): 
+    return
+# TODO: compress image
+def compress(im):
+    return
+#TODO: plot runtime
+def plot_runtime():
+    return
 
 #input: -m Mode -i image
 arg_line = " ".join(sys.argv[1:])
@@ -165,27 +190,20 @@ if mode_match is not None:
 if image_filename_match is not None:
     image_filename = image_filename_match.group()
 
-print("selected mode: "+str(mode))
-print("selected file: "+image_filename)
+img = mpimg.imread(image_filename)
+
+print("selected mode: " + str(mode))
+print("selected file: " + image_filename)
 
 if mode==1:
-    fft_image()
+    fft_image(img)
 elif mode==2:
-    denoise()
+    denoise(img)
 elif mode==3:
-    compress()
+    compress(img)
 elif mode==4:
     plot_runtime()
 else:
     print("invalid mode, please choose a number from 1 to 4.")
     exit()
 exit()
-
-
-
-
-
-# TODO: 2d log scale plot
-
-
-# TODO: save dft to .txt or .csv
