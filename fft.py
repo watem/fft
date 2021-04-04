@@ -46,16 +46,10 @@ def naive_ft(vector):
             ft_vector[k]+=vector[n]*exponential[n]
     return ft_vector
 
-def naive_ft_k(vector, ex):
-    sum = 0+0j
-    for n in range(len(vector)):
-        sum+=vector[n]*ex[n]
-    return sum
-
 # sum parts back together
 def fast_join(vector, depth, join_exp, naive_exp):
     if len(vector)<=(1<<naive_size_pow):
-        return naive_ft_k(vector, naive_exp)
+        return np.dot(vector, naive_exp[:len(vector)])
     else:
         join_even = fast_join(vector[::2], depth+1, join_exp, naive_exp)
         join_odd = fast_join(vector[1::2], depth+1, join_exp, naive_exp)
