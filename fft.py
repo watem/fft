@@ -2,6 +2,7 @@ import sys, re
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from matplotlib.colors import LogNorm
 # Constant values
 # naive_size = 16 # can be acheived using (1<<naive_size_pow)
 naive_size_pow = 4
@@ -64,7 +65,7 @@ def fast_join(vector, depth, join_exp, naive_exp):
 # fast
 def fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
-    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
+    vector = np.concatenate((vector,np.zeros(N-len(vector), dtype=np.complex64)))
     pow = log2(N) #power of the length
     if pow<=naive_size_pow:
         return naive_ft(vector)
@@ -89,6 +90,7 @@ def naive_inverse_k(vector, ex):
     for n in range(len(vector)):
         sum+=vector[n]*ex[n]
     return sum/len(vector)
+
 # sum parts back together
 def fast_inverse_join(vector, depth, join_exp, naive_exp):
     N = len(vector)
@@ -101,7 +103,7 @@ def fast_inverse_join(vector, depth, join_exp, naive_exp):
 
 def inverse_fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
-    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
+    vector = np.concatenate((vector,np.zeros(N-len(vector), dtype=np.complex64)))
     pow = log2(N) #power of the length
     ft_vector = np.zeros(N, dtype=np.complex64) #output array of the fft
     base_naive_exp = 2j*np.pi/(1<<naive_size_pow)*(np.arange((1<<naive_size_pow), dtype=np.complex64)) # e^(base_naive_exp*k) are the exponentials used in the naive FT
@@ -116,33 +118,40 @@ def inverse_fast_ft(vector):
 
     return ft_vector
 
-
 # 2d-fft
 def fft_2d(a):
     n = a.shape[0] # rows
     m = a.shape[1] # columns
 
-    ft_clmns = np.zeros((m,n), dtype=np.complex64)
-    ft_rows = np.zeros((n,m), dtype=np.complex64)
+    N = next_pow2(n)
+    M = next_pow2(m)
+
+    ft_clmns = np.zeros((M,N), dtype=np.complex64)
+    ft_rows = np.zeros((N,M), dtype=np.complex64)
 
     # Take transpose to compute fft on columns
     T = np.transpose(a)
 
     for i in range(m):
+        print(i)
         ft_clmns[i] = fast_ft(T[i])
 
     for j in range(n):
+        print(j)
         ft_rows[j] = fast_ft(np.transpose(ft_clmns)[j])
 
-    return ft_rows
+    return ft_rows[:n,:m]
 
 # 2d-fft inverse
 def ifft_2d(a):
     n = a.shape[0] # rows
     m = a.shape[1] # columns
 
-    ft_clmns = np.zeros((m,n), dtype=np.complex64)
-    ft_rows = np.zeros((n,m), dtype=np.complex64)
+    N = next_pow2(n)
+    M = next_pow2(m)
+
+    ft_clmns = np.zeros((M,N), dtype=np.complex64)
+    ft_rows = np.zeros((N,M), dtype=np.complex64)
 
     # Take transpose to compute fft on columns
     T = np.transpose(a)
@@ -153,21 +162,27 @@ def ifft_2d(a):
     for j in range(n):
         ft_rows[j] = inverse_fast_ft(np.transpose(ft_clmns)[j])
 
-    return ft_rows
+    return ft_rows[:n,:m]
 
 # TODO: 2d log scale plot
 def plot(fft_image):
     plt.imshow(np.abs(fft_image), norm=LogNorm(vmin=5))
-    plt.colorbar()
-    plt.figure()
-    plot_spectrum(fft_image)
-    plt.title('Fourier transform')
 
 # TODO: save dft to .txt or .csv
 
 # TODO: fft of image
 def fft_image(im):
-    fft_2d(im)
+    fft_im = fft_2d(im)
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.imshow(im, plt.cm.gray)
+    plt.title("Original Image")
+
+    plt.subplot(1,2,2)
+    plot(fft_im)
+    plt.title("Fourier Transform")
+    plt.show()
 
 # TODO: denoise image
 def denoise(im): 
