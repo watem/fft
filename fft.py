@@ -47,16 +47,10 @@ def naive_ft(vector):
             ft_vector[k]+=vector[n]*exponential[n]
     return ft_vector
 
-def naive_ft_k(vector, ex):
-    sum = 0+0j
-    for n in range(len(vector)):
-        sum+=vector[n]*ex[n]
-    return sum
-
 # sum parts back together
 def fast_join(vector, depth, join_exp, naive_exp):
     if len(vector)<=(1<<naive_size_pow):
-        return naive_ft_k(vector, naive_exp)
+        return np.dot(vector, naive_exp[:len(vector)])
     else:
         join_even = fast_join(vector[::2], depth+1, join_exp, naive_exp)
         join_odd = fast_join(vector[1::2], depth+1, join_exp, naive_exp)
@@ -66,6 +60,9 @@ def fast_join(vector, depth, join_exp, naive_exp):
 def fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
     vector = np.concatenate((vector,np.zeros(N-len(vector), dtype=np.complex64)))
+    padding = np.zeros(N-len(vector), dtype=np.complex64)
+    vector = np.concatenate((vector,padding), axis=None)
+    
     pow = log2(N) #power of the length
     if pow<=naive_size_pow:
         return naive_ft(vector)
@@ -84,7 +81,7 @@ def fast_ft(vector):
 
         return ft_vector
 
-# TODO: fft inverse
+# fft inverse
 def naive_inverse_k(vector, ex):
     sum = 0+0j
     for n in range(len(vector)):
@@ -117,6 +114,12 @@ def inverse_fast_ft(vector):
         ft_vector[k] = fast_join(vector, 0, join_exp, naive_exp)
 
     return ft_vector
+
+# fft inverse
+def inverse_fast_ft(vector):
+    inverse = fast_ft(vector)/len(vector)
+    reverse = np.concatenate((inverse[0],inverse[:0:-1]),axis=None)
+    return reverse
 
 # 2d-fft
 def fft_2d(a):
