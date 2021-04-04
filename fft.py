@@ -64,7 +64,8 @@ def fast_join(vector, depth, join_exp, naive_exp):
 # fast
 def fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
-    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
+    padding = np.zeros(N-len(vector), dtype=np.complex64)
+    vector = np.concatenate((vector,padding), axis=None)
     pow = log2(N) #power of the length
     if pow<=naive_size_pow:
         return naive_ft(vector)
