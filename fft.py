@@ -39,7 +39,8 @@ exit()
 
 # used to find padding length
 def next_pow2(init_len):
-    count = 0;
+    count = 0
+    n = init_len
 
     # find if power of 2
     if (n and not(n & (n - 1))):
@@ -71,9 +72,18 @@ def naive_ft(vector):
 
 def naive_ft_k(vector, ex):
     sum = 0+0j
-    for n in range(N):
+    for n in range(len(vector)):
         sum+=vector[n]*ex[n]
+    return sum
 
+# sum parts back together
+def fast_join(vector, depth, join_exp, naive_exp):
+    if len(vector)<=(1<<naive_size_pow):
+        return naive_ft_k(vector, naive_exp)
+    else:
+        join_even = fast_join(vector[::2], depth+1, join_exp, naive_exp)
+        join_odd = fast_join(vector[1::2], depth+1, join_exp, naive_exp)
+        return join_even+join_exp[depth]*join_odd
 
 # fast
 def fast_ft(vector):
@@ -83,27 +93,18 @@ def fast_ft(vector):
         return naive_ft(vector)
     else:
         ft_vector = np.zeros(N, dtype=np.complex64) #output array of the fft
-        pre_naive_exp = -2j*np.pi/(1<<naive_size_pow)*(np.arange((1<<naive_size_pow), dtype=np.complex64)) # e^(pre_naive_exp*k) are the exponentials used in the naive FT
+        base_naive_exp = -2j*np.pi/(1<<naive_size_pow)*(np.arange((1<<naive_size_pow), dtype=np.complex64)) # e^(base_naive_exp*k) are the exponentials used in the naive FT
         base_join_exp = np.zeros((pow-naive_size_pow), dtype=np.complex64)
         for i in range(pow-naive_size_pow):
             base_join_exp[i]=1<<i
-        base_join_exp = -2j*np.pi/N*exp_vector # e^(pre_naive_exp*k) are the exponentials multiplied by the sum of the odd n values
+        base_join_exp = -2j*np.pi/N*base_join_exp # e^(base_join_exp*k) are the exponentials multiplied by the sum of the odd n values
 
         for k in range(N):
             join_exp = np.exp(k*base_join_exp)
-            naive_exp = np.exp(k*pre_naive_exp)
-            ft_vector[k] = fast_join(vector, 0, exp_vector, naive_exp)
+            naive_exp = np.exp(k*base_naive_exp)
+            ft_vector[k] = fast_join(vector, 0, join_exp, naive_exp)
 
         return ft_vector
-
-# sum back together
-def fast_join(vector, depth, join_exp, naive_exp):
-    if len(vector)<=(1<<naive_size_pow):
-        return naive_ft_k(vector, naive_exp)
-    else:
-        join_even = fast_join(vector[::2], depth+1, join_exp, naive_exp)
-        join_odd = fast_join(vector[1::2], depth+1, join_exp, naive_exp)
-        return join_even+join_exp[depth]*join_odd
 
 
 # TODO: fft inverse
