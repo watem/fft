@@ -62,6 +62,7 @@ def fast_join(vector, depth, join_exp, naive_exp):
 # fast
 def fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
+    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
     pow = log2(N) #power of the length
     if pow<=naive_size_pow:
         return naive_ft(vector)
@@ -80,7 +81,41 @@ def fast_ft(vector):
 
         return ft_vector
 
-# TODO: 2d-fft
+# TODO: fft inverse
+def naive_inverse_k(vector, ex):
+    sum = 0+0j
+    for n in range(len(vector)):
+        sum+=vector[n]*ex[n]
+    return sum/len(vector)
+# sum parts back together
+def fast_inverse_join(vector, depth, join_exp, naive_exp):
+    N = len(vector)
+    if N<=(1<<naive_size_pow):
+        return naive_inverse_k(vector, naive_exp)
+    else:
+        join_even = fast_inverse_join(vector[::2], depth+1, join_exp, naive_exp)
+        join_odd = fast_inverse_join(vector[1::2], depth+1, join_exp, naive_exp)
+        return (join_even+join_exp[depth]*join_odd)/N
+
+def inverse_fast_ft(vector):
+    N = next_pow2(len(vector)) #makes the length of the input a power of 2
+    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
+    pow = log2(N) #power of the length
+    ft_vector = np.zeros(N, dtype=np.complex64) #output array of the fft
+    base_naive_exp = 2j*np.pi/(1<<naive_size_pow)*(np.arange((1<<naive_size_pow), dtype=np.complex64)) # e^(base_naive_exp*k) are the exponentials used in the naive FT
+    base_join_exp = np.zeros((pow-naive_size_pow), dtype=np.complex64)
+    for i in range(pow-naive_size_pow):
+        base_join_exp[i]=1<<i
+    base_join_exp = ((2j*np.pi)>>pow)*base_join_exp # e^(base_join_exp*k) are the exponentials multiplied by the sum of the odd n values
+    for k in range(N):
+        join_exp = np.exp(k*base_join_exp)
+        naive_exp = np.exp(k*base_naive_exp)
+        ft_vector[k] = fast_join(vector, 0, join_exp, naive_exp)
+
+    return ft_vector
+
+
+# 2d-fft
 def fft_2d(a):
     n = a.shape[0] # rows
     m = a.shape[1] # columns
@@ -99,7 +134,7 @@ def fft_2d(a):
 
     return ft_rows
 
-# TODO: 2d-fft inverse
+# 2d-fft inverse
 def ifft_2d(a):
     n = a.shape[0] # rows
     m = a.shape[1] # columns
@@ -147,10 +182,6 @@ else:
 exit()
 
 
-
-
-
-# TODO: fft inverse
 
 
 
