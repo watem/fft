@@ -8,34 +8,6 @@ naive_size_pow = 4
 mode = 1
 image_filename = "moonlanding.png"
 
-#input: -m Mode -i image
-arg_line = " ".join(sys.argv[1:])
-mode_match = re.search("(?<=-m )[0-9]+", arg_line)
-image_filename_match = re.search("(?<=-i )\S+", arg_line)
-
-if mode_match is not None:
-    mode = int(mode_match.group())
-
-if image_filename_match is not None:
-    image_filename = image_filename_match.group()
-
-print("selected mode: "+str(mode))
-print("selected file: "+image_filename)
-
-
-if mode==1:
-    fft_image()
-elif mode==2:
-    denoise()
-elif mode==3:
-    compress()
-elif mode==4:
-    plot_runtime()
-else:
-    print("invalid mode, please choose a number from 1 to 4.")
-    exit()
-exit()
-
 
 # used to find padding length
 def next_pow2(init_len):
@@ -54,11 +26,13 @@ def next_pow2(init_len):
     return 1 << count
 
 def log2(num):
+    if num==0:
+        return np.NINF
     count = 0
     while num!=0:
         num >>= 1
         count += 1
-    return count
+    return count-1
 
 # naive
 def naive_ft(vector):
@@ -106,9 +80,6 @@ def fast_ft(vector):
 
         return ft_vector
 
-
-# TODO: fft inverse
-
 # TODO: 2d-fft
 def fft_2d(a):
     n = a.shape[0] # rows
@@ -146,6 +117,42 @@ def ifft_2d(a):
         ft_rows[j] = inverse_fast_ft(np.transpose(ft_clmns)[j])
 
     return ft_rows
+
+
+#input: -m Mode -i image
+arg_line = " ".join(sys.argv[1:])
+mode_match = re.search("(?<=-m )[0-9]+", arg_line)
+image_filename_match = re.search("(?<=-i )\S+", arg_line)
+
+if mode_match is not None:
+    mode = int(mode_match.group())
+
+if image_filename_match is not None:
+    image_filename = image_filename_match.group()
+
+print("selected mode: "+str(mode))
+print("selected file: "+image_filename)
+
+if mode==1:
+    fft_image()
+elif mode==2:
+    denoise()
+elif mode==3:
+    compress()
+elif mode==4:
+    plot_runtime()
+else:
+    print("invalid mode, please choose a number from 1 to 4.")
+    exit()
+exit()
+
+
+
+
+
+# TODO: fft inverse
+
+
 
 # TODO: 2d log scale plot
 
