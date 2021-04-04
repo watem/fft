@@ -51,7 +51,7 @@ def next_pow2(init_len):
         n >>= 1
         count += 1
 
-    return 1 << count;
+    return 1 << count
 
 def log2(num):
     count = 0
@@ -110,8 +110,42 @@ def fast_ft(vector):
 # TODO: fft inverse
 
 # TODO: 2d-fft
+def fft_2d(a):
+    n = a.shape[0] # rows
+    m = a.shape[1] # columns
+
+    ft_clmns = np.zeros((m,n), dtype=np.complex64)
+    ft_rows = np.zeros((n,m), dtype=np.complex64)
+
+    # Take transpose to compute fft on columns
+    T = np.transpose(a)
+
+    for i in range(m):
+        ft_clmns[i] = fast_ft(T[i])
+
+    for j in range(n):
+        ft_rows[j] = fast_ft(np.transpose(ft_clmns)[j])
+
+    return ft_rows
 
 # TODO: 2d-fft inverse
+def ifft_2d(a):
+    n = a.shape[0] # rows
+    m = a.shape[1] # columns
+
+    ft_clmns = np.zeros((m,n), dtype=np.complex64)
+    ft_rows = np.zeros((n,m), dtype=np.complex64)
+
+    # Take transpose to compute fft on columns
+    T = np.transpose(a)
+
+    for i in range(m):
+        ft_clmns[i] = inverse_fast_ft(T[i])
+
+    for j in range(n):
+        ft_rows[j] = inverse_fast_ft(np.transpose(ft_clmns)[j])
+
+    return ft_rows
 
 # TODO: 2d log scale plot
 
