@@ -99,14 +99,15 @@ def fast_inverse_join(vector, depth, join_exp, naive_exp):
 
 def inverse_fast_ft(vector):
     N = next_pow2(len(vector)) #makes the length of the input a power of 2
-    vector = np.concatenate(vector,np.zeros(N-len(vector), dtype=np.complex64))
+    padding = np.zeros(N-len(vector), dtype=np.complex64)
+    vector = np.concatenate((vector,padding), axis=None)
     pow = log2(N) #power of the length
     ft_vector = np.zeros(N, dtype=np.complex64) #output array of the fft
     base_naive_exp = 2j*np.pi/(1<<naive_size_pow)*(np.arange((1<<naive_size_pow), dtype=np.complex64)) # e^(base_naive_exp*k) are the exponentials used in the naive FT
     base_join_exp = np.zeros((pow-naive_size_pow), dtype=np.complex64)
     for i in range(pow-naive_size_pow):
         base_join_exp[i]=1<<i
-    base_join_exp = ((2j*np.pi)>>pow)*base_join_exp # e^(base_join_exp*k) are the exponentials multiplied by the sum of the odd n values
+    base_join_exp = ((2j*np.pi)/N)*base_join_exp # e^(base_join_exp*k) are the exponentials multiplied by the sum of the odd n values
     for k in range(N):
         join_exp = np.exp(k*base_join_exp)
         naive_exp = np.exp(k*base_naive_exp)
