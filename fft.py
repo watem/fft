@@ -158,11 +158,11 @@ def fft_2d(a):
     T = np.transpose(a)
 
     for i in range(m):
-        print(i)
+        # print(i)
         ft_clmns[i] = fast_ft(T[i])
 
     for j in range(n):
-        print(j)
+        # print(j)
         ft_rows[j] = fast_ft(np.transpose(ft_clmns)[j])
 
     return ft_rows[:n,:m]
@@ -316,6 +316,11 @@ def single_timing_experiment(size):
     time_naive = timing_naive(image)
     return np.array([time_fast, time_naive])
 
+def print_timing_details(details, size):
+    side_size = 1<<(size+timing_min_size)
+    txt = ":\tlength of square: {size:=} \tmean time taken(s): {mean:.3e} \tstd deviation(s): {std:.3e}"
+    print("Fast"+txt.format(size=side_size, mean=details[0][0], std=details[1][0]))
+    print("Naive"+txt.format(size=side_size, mean=details[0][1], std=details[1][1]))
 
 def single_size_timing(size):
     timings = np.zeros((timing_number_experiments,2))
@@ -325,13 +330,10 @@ def single_size_timing(size):
     timing_details = np.zeros((2,2))
     timing_details[0] = timings.mean(axis=0)
     timing_details[1] = timings.std(axis=0)
+    print_timing_details(timing_details, size)
     return timing_details
 
-def print_timing_details(algorithm, details):
-    for size in range(timing_max_size+1-timing_min_size):
-        side_size = 1<<(size+timing_min_size)
-        txt = "length of square: {size:=} \tmean time taken(s): {mean:.3e} \tstd deviation(s): {std:.3e}"
-        print(txt.format(size=side_size, mean=details[algorithm][0][size], std=details[algorithm][1][size]))
+
 
 def plot_runtime():
     all_timings = np.zeros(((timing_max_size+1-timing_min_size),2,2))
@@ -339,13 +341,13 @@ def plot_runtime():
     for size in range(timing_max_size+1-timing_min_size):
         all_timings[size] = single_size_timing(size+timing_min_size)
         problem_sizes[size] = ((1<<(size+timing_min_size))*(1<<(size+timing_min_size)))
-        print("done with tests of size 2^"+str(size))
+        # print("done with tests of size 2^"+str(size))
 
     details = all_timings.transpose() # details[algorithm][info][size] where info=0 is mean, and info=1 is std
-    print("naive Fourier times")
-    print_timing_details(1, details)
-    print("fast Fourier times")
-    print_timing_details(0, details)
+    # print("naive Fourier times")
+    # print_timing_details(1, details)
+    # print("fast Fourier times")
+    # print_timing_details(0, details)
 
     algo = details[0]
     plt.errorbar(problem_sizes, algo[0],yerr=2*algo[1], barsabove=True, label="fast")
