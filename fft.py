@@ -258,7 +258,7 @@ def compress(im):
         print("Ratio Kept: " + str(ratio_kept) + "%")
         print("Ratio Removed: " + str(ratio_removed) + "%")
 
-        fft_original = np.fft.ifft2(fft_compress)
+        fft_original = ifft_2d(fft_compress)
         plt.subplot(2,3, l+2)
         plt.imshow(fft_original.real, plt.cm.gray)
         plt.title("Compression " + str(ratio_removed) + "%")
