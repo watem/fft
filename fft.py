@@ -339,6 +339,7 @@ def plot_runtime():
     for size in range(timing_max_size+1-timing_min_size):
         all_timings[size] = single_size_timing(size+timing_min_size)
         problem_sizes[size] = ((1<<(size+timing_min_size))*(1<<(size+timing_min_size)))
+        print("done with tests of size 2^"+str(size))
 
     details = all_timings.transpose() # details[algorithm][info][size] where info=0 is mean, and info=1 is std
     print("naive Fourier times")
