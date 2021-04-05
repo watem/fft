@@ -62,7 +62,7 @@ def fast_ft(vector):
     vector = np.concatenate((vector,np.zeros(N-len(vector), dtype=np.complex64)))
     padding = np.zeros(N-len(vector), dtype=np.complex64)
     vector = np.concatenate((vector,padding), axis=None)
-    
+
     pow = log2(N) #power of the length
     if pow<=naive_size_pow:
         return naive_ft(vector)
@@ -167,13 +167,13 @@ def ifft_2d(a):
 
     return ft_rows[:n,:m]
 
-# TODO: 2d log scale plot
+# 2d log scale plot
 def plot(fft_image):
     plt.imshow(np.abs(fft_image), norm=LogNorm(vmin=5))
 
 # TODO: save dft to .txt or .csv
 
-# TODO: fft of image
+# fft of image
 def fft_image(im):
     fft_im = fft_2d(im)
     plt.figure(figsize=(12,4))
@@ -187,9 +187,43 @@ def fft_image(im):
     plt.title("Fourier Transform")
     plt.show()
 
-# TODO: denoise image
+# denoise image
 def denoise(im): 
-    return
+    fft_im = fft_2d(img)
+
+    r, c = fft_im.shape
+
+    max_pixels = r*c
+    kept_pixels = max_pixels
+    fft_denoise = fft_im.copy()
+    for i in range(r):
+        for j in range(c):
+            re = (np.abs(fft_im[i][j].real) % (2 * np.pi))
+            ratio = 0.95
+            if (np.pi * (1-ratio)) <= re <= (np.pi + (np.pi * ratio)):
+                fft_denoise[i][j] = 0
+                kept_pixels = kept_pixels - 1
+
+    count_nonzero = np.count_nonzero(fft_denoise)
+    ratio_kept = count_nonzero/max_pixels
+    print("Non-zeros kept: " + str(count_nonzero))
+    print("Ratio Kept: " + str(ratio_kept))
+    print("Ratio Removed:" + str(1- (ratio_kept)))
+
+    fft_original = ifft_2d(fft_denoise)
+
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.imshow(img, plt.cm.gray)
+    plt.title("Original Image")
+
+    plt.subplot(1,2,2)
+    plt.imshow(fft_original.real, plt.cm.gray)
+    plt.title("Image Denoise")
+
+    plt.show()
+    
 # TODO: compress image
 def compress(im):
     return
