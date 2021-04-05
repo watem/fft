@@ -189,7 +189,7 @@ def fft_image(im):
 
 # denoise image
 def denoise(im): 
-    fft_im = fft_2d(img)
+    fft_im = fft_2d(im)
 
     r, c = fft_im.shape
 
@@ -205,10 +205,11 @@ def denoise(im):
                 kept_pixels = kept_pixels - 1
 
     count_nonzero = np.count_nonzero(fft_denoise)
-    ratio_kept = count_nonzero/max_pixels
+    ratio_kept = round((count_nonzero/max_pixels)*100, 2)
+    ratio_removed = round(100-ratio_kept, 2)
     print("Non-zeros kept: " + str(count_nonzero))
-    print("Ratio Kept: " + str(ratio_kept))
-    print("Ratio Removed:" + str(1- (ratio_kept)))
+    print("Ratio Kept: " + str(ratio_kept) + "%")
+    print("Ratio Removed: " + str(ratio_removed) + "%")
 
     fft_original = ifft_2d(fft_denoise)
 
@@ -224,9 +225,46 @@ def denoise(im):
 
     plt.show()
     
-# TODO: compress image
+# compress image
 def compress(im):
-    return
+    fft_im = fft_2d(im)
+
+    r, c = fft_im.shape
+
+    max_pixels = r*c
+    kept_pixels = max_pixels
+
+    plt.figure(figsize=(12,8))
+
+    plt.subplot(2,3,1)
+    plt.imshow(img, plt.cm.gray)
+    plt.title("Original Image")
+
+    compression = [0.45, 0.3, 0.2, 0.1, 0.025]
+    for l in range(len(compression)):
+        fft_compress = fft_im.copy()
+        ratio = compression[l]
+        for i in range(r):
+            for j in range(c):
+                re = (np.abs(fft_im[i][j].real) % (2 * np.pi))
+                if (np.pi * ratio) <= re <= (np.pi * (1-ratio)) or (np.pi * (1 + ratio)) <= re <= np.pi + (np.pi *(1-ratio)):
+                    fft_compress[i][j] = 0
+                    kept_pixels = kept_pixels - 11
+
+        count_nonzero = np.count_nonzero(fft_compress)
+        ratio_kept = round((count_nonzero/max_pixels)*100, 2)
+        ratio_removed = round(((100-(ratio_kept)) * 100), 2)
+        print("Non-zeros kept: " + str(count_nonzero))
+        print("Ratio Kept: " + str(ratio_kept) + "%")
+        print("Ratio Removed: " + str(ratio_removed) + "%")
+
+        fft_original = np.fft.ifft2(fft_compress)
+        plt.subplot(2,3, l+2)
+        plt.imshow(fft_original.real, plt.cm.gray)
+        plt.title("Compression " + str(ratio_removed) + "%")
+
+    plt.show()
+
 #TODO: plot runtime
 def plot_runtime():
     return
