@@ -44,10 +44,10 @@ def log2(num):
 def naive_ft(vector):
     N = len(vector)
     ft_vector = np.zeros(N, dtype=np.complex64)
+    exp_constant = -2j*np.pi/N
     for k in range(N):
-        exponential = np.exp(-2j*np.pi*k/N*(np.arange(N, dtype=np.complex64)))
-        for n in range(N):
-            ft_vector[k]+=vector[n]*exponential[n]
+        exponential = np.exp(exp_constant*k*(np.arange(N, dtype=np.complex64)))
+        ft_vector[k]=np.dot(vector[n], exponential[n])
     return ft_vector
 
 # sum parts back together
