@@ -263,6 +263,15 @@ def compress(im):
         plt.imshow(fft_original.real, plt.cm.gray)
         plt.title("Compression " + str(ratio_removed) + "%")
 
+        for i in range(r):
+         for j in range(c):
+             if abs(fft_original[i][j].real) <=  2e-1:
+                 fft_original[i][j] = None
+    
+        np.savetxt("comp" + str(l+1) + ".csv", fft_original.real, delimiter=",", fmt="%f")
+
+    np.savetxt("comp_img.csv", img, delimiter=",")
+
     plt.show()
 
 #TODO: plot runtime
