@@ -1,10 +1,13 @@
-import sys, re
+import sys, re, time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 # Constant values
 # naive_size = 16 # can be acheived using (1<<naive_size_pow)
 naive_size_pow = 4
+timing_min_size = 5
+timing_max_size = 10
+timing_number_experiments = 10
 
 # default values
 mode = 1
@@ -84,6 +87,24 @@ def inverse_fast_ft(vector):
     reverse = np.concatenate((inverse[0],inverse[:0:-1]),axis=None)
     return reverse
 
+# 2d-naive-ft
+def naive_ft_2d(a):
+    n = a.shape[0] # rows
+    m = a.shape[1] # columns
+
+    ft_clmns = np.zeros((m,n), dtype=np.complex64)
+    ft_rows = np.zeros((n,m), dtype=np.complex64)
+
+    # Take transpose to compute fft on columns
+    T = np.transpose(a)
+
+    for i in range(m):
+        ft_clmns[i] = naive_ft(T[i])
+
+    for j in range(n):
+        ft_rows[j] = naive_ft(np.transpose(ft_clmns)[j])
+
+    return ft_rows
 
 # 2d-fft
 def fft_2d(a):
@@ -144,8 +165,67 @@ def denoise(im):
 def compress(im):
     return
 #TODO: plot runtime
+def timing_fast(image):
+    t1 = time.time()
+    fft_2d(image)
+    t2 = time.time()
+    return t2-t1
+
+def timing_naive(image):
+    t1 = time.time()
+    naive_ft_2d(image)
+    t2 = time.time()
+    return t2-t1
+
+def single_timing_experiment(size):
+    dimensions = 2<<size
+    image = np.random.random((dimensions,dimensions)) #create a random nXn 2d matrix
+    time_fast = timing_fast(image)
+    time_naive = timing_naive(image)
+    return np.array([time_fast, time_naive])
+
+
+def single_size_timing(size):
+    timings = np.zeros((timing_number_experiments,2))
+    for i in range(timing_number_experiments):
+        timings[i] = single_timing_experiment(size)
+
+    timing_details = np.zeros((2,2))
+    timing_details[0] = timings.mean(axis=0)
+    timing_details[1] = timings.std(axis=0)
+    return timing_details
+
+def print_timing_details(algorithm, details):
+    for size in range(timing_max_size+1-timing_min_size):
+        side_size = 1<<(size+timing_min_size)
+        txt = "length of square: {size:=} \tmean time taken(s): {mean:.3e} \tstd deviation(s): {std:.3e}"
+        print(txt.format(size=side_size, mean=details[algorithm][0][size], std=details[algorithm][1][size]))
+
 def plot_runtime():
-    return
+    all_timings = np.zeros(((timing_max_size+1-timing_min_size),2,2))
+    problem_sizes = np.arange(timing_min_size,timing_max_size+1)
+    for size in range(timing_max_size+1-timing_min_size):
+        all_timings[size] = single_size_timing(size+timing_min_size)
+        problem_sizes[size] = ((1<<(size+timing_min_size))*(1<<(size+timing_min_size)))
+
+    details = all_timings.transpose() # details[algorithm][info][size] where info=0 is mean, and info=1 is std
+    print("naive Fourier times")
+    print_timing_details(1, details)
+    print("fast Fourier times")
+    print_timing_details(0, details)
+
+    algo = details[0]
+    plt.errorbar(problem_sizes, algo[0],yerr=2*algo[1], barsabove=True, label="fast")
+    algo = details[1]
+    plt.errorbar(problem_sizes, algo[0],yerr=2*algo[1], barsabove=True, label="naive")
+
+    plt.xscale("log")
+    plt.legend(loc="upper left")
+    plt.xlabel("problem size")
+    plt.ylabel("time taken (s) (95% confidence)")
+    plt.title("Runtime of algorithms vs Time taken")
+    plt.show()
+
 
 #input: -m Mode -i image
 arg_line = " ".join(sys.argv[1:])
