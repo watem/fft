@@ -317,7 +317,7 @@ def single_timing_experiment(size):
     return np.array([time_fast, time_naive])
 
 def print_timing_details(details, size):
-    side_size = 1<<(size+timing_min_size)
+    side_size = 1<<(size)
     txt = ":\tlength of square: {size:=} \tmean time taken(s): {mean:.3e} \tstd deviation(s): {std:.3e}"
     print("Fast"+txt.format(size=side_size, mean=details[0][0], std=details[1][0]))
     print("Naive"+txt.format(size=side_size, mean=details[0][1], std=details[1][1]))
