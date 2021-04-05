@@ -271,7 +271,7 @@ def compress(im):
                 re = (np.abs(fft_im[i][j].real) % (2 * np.pi))
                 if (np.pi * ratio) <= re <= (np.pi * (1-ratio)) or (np.pi * (1 + ratio)) <= re <= np.pi + (np.pi *(1-ratio)):
                     fft_compress[i][j] = 0
-                    kept_pixels = kept_pixels - 11
+                    kept_pixels = kept_pixels - 1
 
         count_nonzero = np.count_nonzero(fft_compress)
         ratio_kept = round((count_nonzero/max_pixels)*100, 2)
