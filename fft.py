@@ -193,8 +193,6 @@ def ifft_2d(a):
 def plot(fft_image):
     plt.imshow(np.abs(fft_image), norm=LogNorm(vmin=5))
 
-# TODO: save dft to .txt or .csv
-
 # fft of image
 def fft_image(im):
     fft_im = fft_2d(im)
@@ -296,7 +294,7 @@ def compress(im):
 
     plt.show()
 
-#TODO: plot runtime
+# plot runtime
 def timing_fast(image):
     t1 = time.time()
     fft_2d(image)
