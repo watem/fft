@@ -193,8 +193,6 @@ def ifft_2d(a):
 def plot(fft_image):
     plt.imshow(np.abs(fft_image), norm=LogNorm(vmin=5))
 
-# TODO: save dft to .txt or .csv
-
 # fft of image
 def fft_image(im):
     fft_im = fft_2d(im)
@@ -229,7 +227,7 @@ def denoise(im):
     count_nonzero = np.count_nonzero(fft_denoise)
     ratio_kept = round((count_nonzero/max_pixels)*100, 2)
     ratio_removed = round(100-ratio_kept, 2)
-    print("Non-zeros kept: " + str(count_nonzero))
+    print("\nNon-zeros kept: " + str(count_nonzero))
     print("Ratio Kept: " + str(ratio_kept) + "%")
     print("Ratio Removed: " + str(ratio_removed) + "%")
 
@@ -275,8 +273,8 @@ def compress(im):
 
         count_nonzero = np.count_nonzero(fft_compress)
         ratio_kept = round((count_nonzero/max_pixels)*100, 2)
-        ratio_removed = round(((100-(ratio_kept)) * 100), 2)
-        print("Non-zeros kept: " + str(count_nonzero))
+        ratio_removed = round(100-(ratio_kept), 2)
+        print("\nNon-zeros kept: " + str(count_nonzero))
         print("Ratio Kept: " + str(ratio_kept) + "%")
         print("Ratio Removed: " + str(ratio_removed) + "%")
 
